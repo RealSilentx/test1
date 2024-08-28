@@ -1,0 +1,250 @@
+-- Creating the ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "CustomGUI"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = game.CoreGui
+
+-- Creating the Open/Close Button
+local toggleButton = Instance.new("TextButton")
+toggleButton.Name = "OpenCloseButton"
+toggleButton.Size = UDim2.new(0, 100, 0, 50)
+toggleButton.Position = UDim2.new(0.9, 0, 0.05, 0)
+toggleButton.Text = "Open"
+toggleButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleButton.Font = Enum.Font.GothamBold
+toggleButton.TextSize = 18
+toggleButton.Visible = false -- Start as hidden until password is entered
+toggleButton.Parent = screenGui
+
+local toggleButtonCorner = Instance.new("UICorner")
+toggleButtonCorner.CornerRadius = UDim.new(0, 10)
+toggleButtonCorner.Parent = toggleButton
+
+-- Main Frame
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 420, 0, 300)
+mainFrame.Position = UDim2.new(0.5, -210, 0.5, -150)
+mainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+mainFrame.Visible = false -- Start as hidden until password is entered
+mainFrame.Parent = screenGui
+
+local mainFrameCorner = Instance.new("UICorner")
+mainFrameCorner.CornerRadius = UDim.new(0, 10)
+mainFrameCorner.Parent = mainFrame
+
+-- Title Label
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Name = "TitleLabel"
+titleLabel.Size = UDim2.new(1, 0, 0, 50)
+titleLabel.Text = "MiniHub"
+titleLabel.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.Font = Enum.Font.GothamBold
+titleLabel.TextSize = 24
+titleLabel.Parent = mainFrame
+
+titleLabel.TextXAlignment = Enum.TextXAlignment.Center
+
+local titleLabelCorner = Instance.new("UICorner")
+titleLabelCorner.CornerRadius = UDim.new(0, 10)
+titleLabelCorner.Parent = titleLabel
+
+-- Divider
+local divider = Instance.new("Frame")
+divider.Size = UDim2.new(1, -20, 0, 2)
+divider.Position = UDim2.new(0.5, -200, 0, 50)
+divider.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+divider.Parent = mainFrame
+
+-- Button Container
+local buttonContainer = Instance.new("Frame")
+buttonContainer.Name = "ButtonContainer"
+buttonContainer.Size = UDim2.new(1, -40, 1, -60)
+buttonContainer.Position = UDim2.new(0.5, -190, 0, 60)
+buttonContainer.BackgroundTransparency = 1
+buttonContainer.Parent = mainFrame
+
+-- UIGridLayout for Button Arrangement
+local gridLayout = Instance.new("UIGridLayout")
+gridLayout.Parent = buttonContainer
+gridLayout.CellSize = UDim2.new(0, 130, 0, 50)
+gridLayout.CellPadding = UDim2.new(0, 10, 0, 10)
+gridLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+gridLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+
+-- Password UI
+local passwordFrame = Instance.new("Frame")
+passwordFrame.Name = "PasswordFrame"
+passwordFrame.Size = UDim2.new(0, 300, 0, 150)
+passwordFrame.Position = UDim2.new(0.5, -150, 0.5, -75)
+passwordFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+passwordFrame.Parent = screenGui
+
+local passwordTextBox = Instance.new("TextBox")
+passwordTextBox.Size = UDim2.new(0, 260, 0, 40)
+passwordTextBox.Position = UDim2.new(0.5, -130, 0.5, -20)
+passwordTextBox.PlaceholderText = "Enter Password"
+passwordTextBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+passwordTextBox.Text = ""
+passwordTextBox.ClearTextOnFocus = true
+passwordTextBox.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+passwordTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+passwordTextBox.Font = Enum.Font.GothamBold
+passwordTextBox.TextSize = 18
+passwordTextBox.Parent = passwordFrame
+
+local confirmButton = Instance.new("TextButton")
+confirmButton.Size = UDim2.new(0, 120, 0, 40)
+confirmButton.Position = UDim2.new(0.5, -60, 0.5, 30)
+confirmButton.Text = "Confirm"
+confirmButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+confirmButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+confirmButton.Font = Enum.Font.GothamBold
+confirmButton.TextSize = 18
+confirmButton.Parent = passwordFrame
+
+-- Password functionality
+local correctPassword = "Hell"
+confirmButton.MouseButton1Click:Connect(function()
+    if passwordTextBox.Text == correctPassword then
+        passwordFrame.Visible = false
+        mainFrame.Visible = true
+        toggleButton.Visible = true
+    else
+        passwordTextBox.Text = ""
+        passwordTextBox.PlaceholderText = "Incorrect Password"
+    end
+end)
+
+-- Toggle UI visibility
+toggleButton.MouseButton1Click:Connect(function()
+    mainFrame.Visible = not mainFrame.Visible
+    toggleButton.Text = mainFrame.Visible and "Close" or "Open"
+end)
+
+-- Variables to store toggle states
+local defaultFarm = false
+local scytheFarm = false
+local autoRebirth = false
+local autoEquipSwords = false -- Track state for sword auto-equipping
+
+-- Function to enable God Mode
+local function enableGodMode()
+    local character = game.Players.LocalPlayer.Character
+    if character then
+        local humanoid = character:FindFirstChild("Humanoid")
+        if humanoid then
+            humanoid.Health = humanoid.MaxHealth
+        end
+    end
+end
+
+-- Function to equip all swords
+local function equipAllSwords()
+    while autoEquipSwords do
+        for _, tool in ipairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+            if tool:IsA("Tool") and tool.Name:lower():find("sword") then
+                tool.Parent = game.Players.LocalPlayer.Character
+            end
+        end
+        wait() -- Adjust delay as needed to ensure continuous equipping
+    end
+end
+
+-- Function to handle DefaultFarm, ScytheFarm, and AutoRebirth
+local function runFarming()
+    if defaultFarm then
+        -- DefaultFarm logic
+        for _, tool in ipairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+            if tool:IsA("Tool") and tool:FindFirstChild("Handle") and tool.Handle:FindFirstChild("Script") and tool.Handle.Script:FindFirstChild("RemoteEvent") then
+                for i = 1, 5 do
+                    tool.Handle.Script.RemoteEvent:FireServer()
+                end
+            end
+        end
+
+        local character = game.Players.LocalPlayer.Character
+        if character and character:FindFirstChildOfClass("Tool") then
+            local tool = character:FindFirstChildOfClass("Tool")
+            if tool:FindFirstChild("Handle") and tool.Handle:FindFirstChild("Script") and tool.Handle.Script:FindFirstChild("RemoteEvent") then
+                for i = 1, 5 do
+                    tool.Handle.Script.RemoteEvent:FireServer()
+                end
+            end
+        end
+
+        -- Fire additional remote events for DefaultFarm
+        game:GetService("ReplicatedStorage").HealerEvent:FireServer()
+        if character and character:FindFirstChild("sword") and character.sword:FindFirstChild("Handle") and character.sword.Handle:FindFirstChild("dmg") and character.sword.Handle.dmg:FindFirstChild("RemoteEvent") then
+            character.sword.Handle.dmg.RemoteEvent:FireServer()
+        end
+    end
+
+    if scytheFarm then
+        -- ScytheFarm logic
+        local scythe = game.Players.LocalPlayer.Character:FindFirstChild("scythe")
+        if scythe then
+            for i = 1, 5 do
+                scythe.Handle.Script.RemoteEvent:FireServer()
+            end
+        else
+            warn("Scythe sword not found! Please equip the Scythe sword to use ScytheFarm.")
+        end
+
+        -- Fire additional remote events for ScytheFarm
+        game:GetService("ReplicatedStorage").HealerEvent:FireServer()
+        if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("sword") and game.Players.LocalPlayer.Character.sword:FindFirstChild("Handle") and game.Players.LocalPlayer.Character.sword.Handle:FindFirstChild("dmg") and game.Players.LocalPlayer.Character.sword.Handle.dmg:FindFirstChild("RemoteEvent") then
+            game.Players.LocalPlayer.Character.sword.Handle.dmg.RemoteEvent:FireServer()
+        end
+    end
+
+    if autoRebirth then
+        -- AutoRebirth logic
+        local args = {
+            [1] = game:GetService("Players").LocalPlayer.leaderstats.Rebirths
+        }
+        game:GetService("ReplicatedStorage").Rebirth:FireServer(unpack(args))
+    end
+end
+
+-- Adding buttons to the custom GUI that connect with the features
+local buttons = {
+    { Name = "DefaultFarm", Callback = function() defaultFarm = not defaultFarm end },
+    { Name = "ScytheFarm", Callback = function() scytheFarm = not scytheFarm end },
+    { Name = "Auto Rebirth", Callback = function() autoRebirth = not autoRebirth end },
+    { Name = "Auto Equip Sword", Callback = function()
+        autoEquipSwords = not autoEquipSwords
+        if autoEquipSwords then
+            equipAllSwords() -- Start equipping swords continuously
+        end
+    end }
+}
+
+-- Function to create buttons in the custom GUI
+for _, btn in pairs(buttons) do
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0, 130, 0, 50)
+    button.Text = btn.Name
+    button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.Font = Enum.Font.GothamBold
+    button.TextSize = 18
+    button.Parent = buttonContainer
+
+    local buttonCorner = Instance.new("UICorner")
+    buttonCorner.CornerRadius = UDim.new(0, 10)
+    buttonCorner.Parent = button
+
+    button.MouseButton1Click:Connect(btn.Callback)
+end
+
+-- Continuous Farming and God Mode
+game:GetService("RunService").RenderStepped:Connect(function()
+    -- Continuous God Mode
+    enableGodMode()
+    
+    -- Run Farming Features
+    runFarming()
+end)
